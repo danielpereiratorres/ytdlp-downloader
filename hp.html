@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <script>
+        async function getDownloadLink() {
+            const url = document.getElementById("url").value;
+            if (!url) return alert("Please enter a YouTube URL");
+
+            const response = await fetch(`/download?url=${encodeURIComponent(url)}`);
+            const data = await response.json();
+
+            if (data.error) {
+                alert("Error: " + data.error);
+            } else {
+                document.getElementById("result").innerHTML = `
+                    <h3>${data.title}</h3>
+                    <a href="${data.video_url}" download>Download Video</a>
+                `;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>YouTube Video Downloader</h1>
+    <input type="text" id="url" placeholder="Enter YouTube URL" style="width: 80%;">
+    <button onclick="getDownloadLink()">Get Download Link</button>
+    <div id="result"></div>
+</body>
+</html>

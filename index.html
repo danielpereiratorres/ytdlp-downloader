@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+</head>
+<body>
+    <h2>YouTube Video Downloader</h2>
+    <form id="download-form">
+        <input type="text" id="url" placeholder="Enter YouTube URL" required>
+        <button type="submit">Download</button>
+    </form>
+    <div id="download-link"></div>
+
+    <script>
+        document.getElementById("download-form").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            let url = document.getElementById("url").value;
+            let response = await fetch(`http://127.0.0.1:5001/download?url=${encodeURIComponent(url)}`);
+            let data = await response.json();
+            
+            if (data.download_url) {
+                let downloadLink = document.createElement("a");
+                downloadLink.href = data.download_url;
+                downloadLink.innerText = "Download Video";
+                downloadLink.setAttribute("download", "video.mp4"); // Suggests the filename
+                document.getElementById("download-link").innerHTML = "";
+                document.getElementById("download-link").appendChild(downloadLink);
+            } else {
+                alert("Failed to retrieve download link. Try again.");
+            }
+        });
+    </script>
+</body>
+</html>
