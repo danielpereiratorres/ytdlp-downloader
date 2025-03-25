@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import yt_dlp
-import os  # Ensure the import is present
+import os  # Ensure the os module is imported
 
 app = Flask(__name__)
 
@@ -14,6 +14,7 @@ def download_video():
     if not url:
         return jsonify({"error": "No URL provided"}), 400  # If no URL is provided, return an error
 
+    # You can use yt-dlp to process the URL here
     try:
         ydl_opts = {
             'format': 'best',  # You can adjust the format as needed
@@ -26,8 +27,8 @@ def download_video():
         return jsonify({"download_url": video_url})  # Return the direct download URL
 
     except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500  # Improved error message
+        return jsonify({"error": str(e)}), 500  # Return an error if something goes wrong
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5001))  # Use Railway-assigned port, default to 5001 locally
+    port = int(os.environ.get("PORT", 10000))  # Render assigns a dynamic port, so default to 10000
     app.run(host="0.0.0.0", port=port)
