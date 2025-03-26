@@ -1,8 +1,11 @@
 from flask import Flask, request, jsonify
-import yt_dlp
-import os  # Ensure the os module is imported
+import subprocess
+import os
 
 app = Flask(__name__)
+
+downloads_dir = "downloads"
+os.makedirs(downloads_dir, exist_ok=True)  # Ensure the downloads directory exists
 
 @app.route('/')
 def index():
@@ -14,20 +17,24 @@ def download_video():
     if not url:
         return jsonify({"error": "No URL provided"}), 400  # If no URL is provided, return an error
 
-    # You can use yt-dlp to process the URL here
     try:
-        ydl_opts = {
-            'format': 'best',  # You can adjust the format as needed
-            'outtmpl': 'downloads/%(title)s.%(ext)s',  # Adjust output directory
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=False)  # Just get info without downloading
-            video_url = info_dict.get("url")  # Get the direct URL of the video
+        # Define output filename
+        output_path = os.path.join(downloads_dir, "%(title)s.%(ext)s")
+        
+        # Run yt-dlp with headers to mimic a real browser
+        subprocess.run([
+            "yt-dlp",
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "--referer", "https://www.youtube.com/",
+            "-f", "best",
+            "-o", output_path,
+            url
+        ], check=True)
 
-        return jsonify({"download_url": video_url})  # Return the direct download URL
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500  # Return an error if something goes wrong
+        return jsonify({"message": "Download started successfully"})
+    
+    except subprocess.CalledProcessError as e:
+        return jsonify({"error": "Failed to download video", "details": str(e)})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))  # Render assigns a dynamic port, so default to 10000
