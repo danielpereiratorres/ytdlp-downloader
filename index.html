@@ -18,7 +18,8 @@
             event.preventDefault();
             
             let url = document.getElementById("url").value;
-            let response = await fetch(`http://127.0.0.1:5001/download?url=${encodeURIComponent(url)}`);
+let response = await fetch(`/download?url=${encodeURIComponent(url)}`);
+
             let data = await response.json();
             
             if (data.download_url) {
